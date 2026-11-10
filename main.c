@@ -13,6 +13,7 @@
 typedef enum game_state {
     MENU,
     INGAME,
+    DEATH,
 } game_state;
 
 int main(void) {
