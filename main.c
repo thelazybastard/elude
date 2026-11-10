@@ -8,29 +8,50 @@
 #define START_BUTTON_WIDTH 200
 #define START_BUTTON_HEIGHT 100
 
+#define START_TEXT "Start"
+
 typedef enum game_state {
     MENU,
     INGAME,
 } game_state;
 
-bool start_screen(void);
-
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE);
 
-    SetTargetFPS(60);
-
     game_state current_state = MENU;
 
+    Rectangle start_button = {
+        SCREEN_WIDTH / 2 - 100,
+        SCREEN_HEIGHT / 2 + 100,
+        START_BUTTON_WIDTH,
+        START_BUTTON_HEIGHT,
+    };
+    Color start_button_color = DARKGRAY;
+
+    SetTargetFPS(60);
+
     while (!WindowShouldClose()) {
-        ClearBackground(WHITE);
+        if (CheckCollisionPointRec(GetMousePosition(), start_button)) {
+            start_button_color = LIGHTGRAY;
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                current_state = INGAME;
+            }
+        } else {
+            start_button_color = DARKGRAY;
+        }
 
         BeginDrawing();
 
+        ClearBackground(WHITE);
+
         if (current_state == MENU) {
-            if (!start_screen()) {
-                current_state = INGAME;
-            }
+            DrawText(GAME_TITLE, SCREEN_WIDTH / 2 - 120,
+                     SCREEN_HEIGHT / 2 - 100, 100, BLACK);
+
+            DrawRectangleRec(start_button, start_button_color);
+
+            DrawText(START_TEXT, start_button.x + 25, start_button.y + 25, 50,
+                     BLACK);
         }
 
         EndDrawing();
@@ -39,27 +60,4 @@ int main(void) {
     CloseWindow();
 
     return 0;
-}
-
-Color rectangle_color = DARKGRAY;
-bool start_screen(void) {
-    DrawText(GAME_TITLE, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 100, 100, BLACK);
-
-    Rectangle start_button = {
-        SCREEN_WIDTH / 2,
-        SCREEN_HEIGHT / 2 + 100,
-        START_BUTTON_WIDTH,
-        START_BUTTON_HEIGHT,
-    };
-
-    DrawRectangleRec(start_button, rectangle_color);
-
-    if (CheckCollisionPointRec(GetMousePosition(), start_button)) {
-        rectangle_color = LIGHTGRAY;
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            return false;
-        }
-    }
-
-    return true;
 }
