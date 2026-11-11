@@ -80,7 +80,7 @@ int main(void) {
                 player.x += 5;
             }
 
-            platform.y += 5;
+            platform.y += 6;
             if (CheckCollisionRecs(platform, base_level)) {
                 platform.y = LEVELS_STARTING_Y;
                 platform.x = rand() % ((int)SCREEN_WIDTH + 1);
