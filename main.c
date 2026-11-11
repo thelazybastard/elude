@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include <stdlib.h>
 
 #define SCREEN_WIDTH 1280.0
 #define SCREEN_HEIGHT 720.0
@@ -82,6 +83,7 @@ int main(void) {
             platform.y += 5;
             if (CheckCollisionRecs(platform, base_level)) {
                 platform.y = LEVELS_STARTING_Y;
+                platform.x = rand() % ((int)SCREEN_WIDTH + 1);
             }
             if (CheckCollisionRecs(platform, player)) {
                 current_state = DEATH;
