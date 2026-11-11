@@ -10,24 +10,18 @@
 
 #define START_TEXT "Start"
 
-#define PLAYER_HEALTH 100
-#define CURRENT_SCORE 0
 #define PLAYER_STARTING_POS_X 600
-#define PLAYER_STARTING_POS_Y 680
+#define PLAYER_STARTING_POS_Y 600
+
+#define LEVELS_STARTING_Y -750
+
+#define BASE_LEVEL 650
 
 typedef enum game_state {
     MENU,
     INGAME,
     DEATH,
 } game_state;
-
-typedef struct player {
-    int health;
-    int score;
-    Texture2D texture;
-    int pos_x;
-    const int pos_y;
-} player;
 
 int main(void) {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, GAME_TITLE);
@@ -42,20 +36,27 @@ int main(void) {
     };
     Color start_button_color = DARKGRAY;
 
-    player player = {
-        PLAYER_HEALTH,
-        CURRENT_SCORE,
-        LoadTexture("assets/skeleton.png"),
+    Rectangle player = {
         PLAYER_STARTING_POS_X,
         PLAYER_STARTING_POS_Y,
-    };
-
-    Rectangle player_placeholder = {
-        player.pos_x,
-        player.pos_y,
         20,
         50,
     };
+
+    Rectangle platform = {
+        0,
+        LEVELS_STARTING_Y,
+        1150,
+        100,
+    };
+
+    Rectangle base_level = {0, BASE_LEVEL, 1280, 200};
+
+    bool randomize_once = true;
+
+    int count_down = 500;
+
+    int score = 0;
 
     SetTargetFPS(60);
 
@@ -70,14 +71,23 @@ int main(void) {
                 start_button_color = DARKGRAY;
             }
         } else if (current_state == INGAME) {
+            count_down = 500;
             if (IsKeyDown(KEY_A)) {
-                // player.pos_x -= 10;
-                player_placeholder.x -= 5;
+                player.x -= 5;
             }
             if (IsKeyDown(KEY_D)) {
-                // player.pos_x += 10;
-                player_placeholder.x += 5;
+                player.x += 5;
             }
+
+            platform.y += 5;
+            if (CheckCollisionRecs(platform, base_level)) {
+                platform.y = LEVELS_STARTING_Y;
+            }
+            if (CheckCollisionRecs(platform, player)) {
+                current_state = DEATH;
+            }
+
+            score++;
         }
 
         BeginDrawing();
@@ -93,8 +103,22 @@ int main(void) {
             DrawText(START_TEXT, start_button.x + 25, start_button.y + 25, 50,
                      BLACK);
         } else if (current_state == INGAME) {
-            // DrawTexture(player.texture, player.pos_x, player.pos_y, WHITE);
-            DrawRectangleRec(player_placeholder, BLUE);
+            DrawText(TextFormat("%d", score), SCREEN_WIDTH - 50, 20, 25, BLACK);
+            DrawRectangleRec(base_level, BLACK);
+            DrawRectangleRec(player, BLUE);
+            DrawRectangleRec(platform, RED);
+        } else {
+            DrawText("YOU DIED!", SCREEN_WIDTH / 2 - 150,
+                     SCREEN_HEIGHT / 2 + 100, 100, BLACK);
+
+            DrawText(TextFormat("Your Score: %d", score),
+                     SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 - 80, 50, BLACK);
+
+            count_down -= 1;
+
+            if (count_down <= 0) {
+                current_state = MENU;
+            }
         }
 
         EndDrawing();
